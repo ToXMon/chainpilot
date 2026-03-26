@@ -6,9 +6,10 @@
 #
 # BEFORE DEPLOYING:
 #   1. Build & push your Docker image (see Dockerfile + docs/DEPLOY.md)
-#   2. Replace YOUR_REGISTRY/your-username/web3-agent:v1.0.0 below
-#   3. Set your Venice API key and optional Web3 RPC URLs in env
-# ============================================================
+#   1. CI/CD builds the Docker image automatically on push to main
+#   2. Find the image tag in GitHub Actions: https://github.com/ToXMon/chainpilot/actions
+#   3. Replace the tag below (e.g. 0.1.0-sha-abc1234 or 1.0.0)
+#   4. Set secrets: VENICE_API_KEY, DB_PASSWORD, TREASURY_PRIVATE_KEY, PRIVY_APP_SECRET, NEXT_PUBLIC_PRIVY_APP_ID
 
 version: "2.0"
 
@@ -38,7 +39,7 @@ services:
   # Uses Venice SDK for LLM, ethers.js for Web3 tools
   # ─────────────────────────────────────────────────────────────
   app:
-    image: YOUR_REGISTRY/your-username/web3-agent:v1.0.0
+    image: ghcr.io/toxmon/chainpilot:0.1.0-sha-8569529
     env:
       # ── Database (internal Akash networking) ──
       - DATABASE_URL=postgresql://web3agent:${DB_PASSWORD}@postgres:5432/web3agent
