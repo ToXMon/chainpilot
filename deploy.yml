@@ -100,10 +100,10 @@ profiles:
     mainstream:
       pricing:
         postgres:
-          denom: uakt
+          denom: uact
           amount: 1500
         app:
-          denom: uakt
+          denom: uact
           amount: 5000
 
 deployment:
