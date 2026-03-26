@@ -1,12 +1,6 @@
 # ============================================================
 # Web3 AI Agent - Multi-stage Docker Build for Akash Network
 # ============================================================
-# Usage:
-#   docker build -t your-registry/web3-agent:v1.0.0 .
-#   docker push your-registry/web3-agent:v1.0.0
-#
-# Then update deploy.yml image: field to match
-# ============================================================
 
 # ── Stage 1: Dependencies ──────────────────────────────────────
 FROM node:20-alpine3.19 AS deps
@@ -17,6 +11,7 @@ RUN npm ci && npm cache clean --force
 
 # ── Stage 2: Build ─────────────────────────────────────────────
 FROM node:20-alpine3.19 AS builder
+ARG OPENAI_API_KEY=build-dummy
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -27,6 +22,7 @@ RUN npx prisma generate
 # Build Next.js (standalone output for minimal runtime image)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV OPENAI_API_KEY=${OPENAI_API_KEY}
 RUN npm run build
 
 # ── Stage 3: Runner ────────────────────────────────────────────
