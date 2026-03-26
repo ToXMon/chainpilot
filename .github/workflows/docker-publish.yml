@@ -24,23 +24,25 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Lowercase owner
+        id: owner
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ steps.owner.outputs.owner }}
+          password: ${{ secrets.GHCR_PAT }}
 
-      - name: Lowercase owner and generate tag
-        id: meta
+      - name: Generate image tag
+        id: tag
         run: |
-          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "image=ghcr.io/${OWNER}/chainpilot" >> $GITHUB_OUTPUT
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
           else
             SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-            echo "tag=0.1.0-sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
+            echo "version=0.1.0-sha-${SHORT_SHA}" >> $GITHUB_OUTPUT
           fi
 
       - name: Build and push Docker image
@@ -49,10 +51,10 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ steps.owner.outputs.owner }}/chainpilot:${{ steps.tag.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
       - name: Print image reference
-        run: echo "Image: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}"
+        run: echo "IMAGE=ghcr.io/${{ steps.owner.outputs.owner }}/chainpilot:${{ steps.tag.outputs.version }}"
