@@ -13,7 +13,7 @@ FROM node:20-alpine3.19 AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # ── Stage 2: Build ─────────────────────────────────────────────
 FROM node:20-alpine3.19 AS builder
