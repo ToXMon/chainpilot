@@ -5,7 +5,6 @@ import { getBlockInfoSchema } from './getBlockInfo'
 import { getTokenInfoSchema } from './getTokenInfo'
 import { getChainIdSchema } from './getChainId'
 import { resolveEnsSchema } from './resolveEns'
-import { sendTokenSchema } from './sendToken'
 
 // ⚠️ RAW tool definitions — zodFunction() in agent.ts wraps these into OpenAI format
 // Do NOT wrap in {type:'function', function:{...}} — that's what zodFunction does!
@@ -46,11 +45,6 @@ export const tools = [
     parameters: resolveEnsSchema,
     description: 'Resolve an ENS name (e.g., vitalik.eth) to its Ethereum address. Only works on Ethereum mainnet. ENS supports .eth domains natively and other domains via DNS integration.',
   },
-  {
-    name: 'send_token',
-    parameters: sendTokenSchema,
-    description: 'Propose sending ERC-20 tokens from the user\'s wallet. Returns a transaction proposal for user confirmation. Gas is sponsored. IMPORTANT: This requires the user to have a smart wallet. Only propose if the user has logged in. Always check the user\'s balance first using get_token_balance before proposing a send.',
-  },
 ]
 
 export const toolDefinitions: Record<string, (input: { userMessage: string; toolArgs: any }) => Promise<string>> = {
@@ -61,5 +55,4 @@ export const toolDefinitions: Record<string, (input: { userMessage: string; tool
   get_token_info: (await import('./getTokenInfo')).getTokenInfo,
   get_chain_id: (await import('./getChainId')).getChainId,
   resolve_ens: (await import('./resolveEns')).resolveEns,
-  send_token: (await import('./sendToken')).sendToken,
 }

@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { PrivyProviderWrapper } from '@/components/PrivyProvider'
 
 export const metadata: Metadata = {
   title: 'ChainPilot - Web3 AI Agent',
-  description: 'AI-powered blockchain intelligence agent with smart wallet. Send tokens, check balances, and explore chains — all through chat.',
+  description: 'AI-powered blockchain intelligence agent. Check balances, gas prices, token info, and explore chains — all through chat.',
 }
 
 export default function RootLayout({
@@ -15,9 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="bg-dark-bg text-dark-text antialiased">
-        <PrivyProviderWrapper>
-          {children}
-        </PrivyProviderWrapper>
+        {children}
       </body>
     </html>
   )

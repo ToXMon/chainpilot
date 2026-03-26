@@ -12,7 +12,7 @@ export async function* runAgent({
   messages: AIMessage[]
   onToolCall?: (name: string, args: any) => void
 }) {
-  const formattedTools = tools.map(zodFunction)
+  const formattedTools = (tools as any[]).map(zodFunction)
 
   let iterations = 0
 

@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { withAuth, type AuthResult } from '@/lib/auth'
 
-export const GET = withAuth(async (_req: NextRequest, _ctx: any, auth: AuthResult) => {
+export async function GET(_req: NextRequest) {
   try {
     const conversations = await prisma.conversation.findMany({
-      where: { userId: auth.userId },
       orderBy: { updatedAt: 'desc' },
       include: {
         messages: {
@@ -29,9 +27,9 @@ export const GET = withAuth(async (_req: NextRequest, _ctx: any, auth: AuthResul
     console.error('[HISTORY_GET]', error.message)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-})
+}
 
-export const DELETE = withAuth(async (req: NextRequest, _ctx: any, auth: AuthResult) => {
+export async function DELETE(req: NextRequest) {
   try {
     const { id } = await req.json()
 
@@ -40,7 +38,7 @@ export const DELETE = withAuth(async (req: NextRequest, _ctx: any, auth: AuthRes
     }
 
     const convo = await prisma.conversation.findFirst({
-      where: { id, userId: auth.userId },
+      where: { id },
     })
 
     if (!convo) {
@@ -55,4 +53,4 @@ export const DELETE = withAuth(async (req: NextRequest, _ctx: any, auth: AuthRes
     console.error('[HISTORY_DELETE]', error.message)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-})
+}

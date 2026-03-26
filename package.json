@@ -20,9 +20,6 @@
     "@prisma/client": "5.22.0",
     "ai": "3.4.33",
     "uuid": "11.0.2",
-    "@privy-io/react-auth": "3.18.0",
-    "@privy-io/server-auth": "1.32.5",
-    "@tanstack/react-query": "5.95.2",
     "prisma": "5.22.0"
   },
   "devDependencies": {

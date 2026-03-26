@@ -1,11 +1,10 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { runAgent } from '@/lib/agent'
-import { withAuth, type AuthResult } from '@/lib/auth'
 import type { AIMessage } from '@/lib/types'
 import { v4 as uuidv4 } from 'uuid'
 
-export const POST = withAuth(async (req: NextRequest, _ctx: any, auth: AuthResult) => {
+export async function POST(req: NextRequest) {
   try {
     const { message, conversationId } = await req.json()
 
@@ -19,13 +18,12 @@ export const POST = withAuth(async (req: NextRequest, _ctx: any, auth: AuthResul
       const conversation = await prisma.conversation.create({
         data: {
           title: message.slice(0, 50) + (message.length > 50 ? '...' : ''),
-          userId: auth.userId,
         },
       })
       convoId = conversation.id
     } else {
       const existing = await prisma.conversation.findFirst({
-        where: { id: convoId, userId: auth.userId },
+        where: { id: convoId },
       })
       if (!existing) {
         return new Response(JSON.stringify({ error: 'Conversation not found' }), { status: 404 })
@@ -84,12 +82,12 @@ export const POST = withAuth(async (req: NextRequest, _ctx: any, auth: AuthResul
           const toolMessages: Array<{ role: string; content: string; toolCallId: string; toolName: string; toolArgs: string }> = []
 
           for await (const event of agentGen) {
-            if (event.type === 'text') {
+            if (event.type === 'text' && event.content) {
               assistantContent = event.content
               send('text', { content: event.content })
-            } else if (event.type === 'tool_call') {
+            } else if (event.type === 'tool_call' && event.name) {
               send('tool_call', { name: event.name, args: event.args })
-            } else if (event.type === 'tool_result') {
+            } else if (event.type === 'tool_result' && event.result && event.name) {
               toolMessages.push({
                 role: 'tool',
                 content: event.result,
@@ -145,4 +143,4 @@ export const POST = withAuth(async (req: NextRequest, _ctx: any, auth: AuthResul
     console.error('[CHAT]', error.message)
     return new Response(JSON.stringify({ error: 'Internal server error' }), { status: 500 })
   }
-})
+}
