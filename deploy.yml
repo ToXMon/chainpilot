@@ -24,6 +24,7 @@ services:
       - POSTGRES_USER=web3agent
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=web3agent
+      - PGDATA=/var/lib/postgresql/data/pgdata
     expose:
       - port: 5432
         to:
