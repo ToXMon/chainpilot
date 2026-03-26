@@ -20,6 +20,7 @@ services:
   # ─────────────────────────────────────────────────────────────
   postgres:
     image: postgres:16.2-alpine
+    command: ["postgres", "-c", "data_directory=/var/lib/postgresql/data/pgdata"]
     env:
       - POSTGRES_USER=web3agent
       - POSTGRES_PASSWORD=${DB_PASSWORD}
