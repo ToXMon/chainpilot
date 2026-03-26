@@ -56,5 +56,17 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/amd64
 
+      - name: Make package public
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_PAT }}
+        run: |
+          OWNER="${{ steps.owner.outputs.owner }}"
+          curl -s -X PATCH \
+            -H "Authorization: Bearer ${GHCR_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -d '{"visibility":"public"}' \
+            "https://api.github.com/user/packages/container/${OWNER}%2Fchainpilot/visibility"
+
       - name: Print image reference
         run: echo "IMAGE=ghcr.io/${{ steps.owner.outputs.owner }}/chainpilot:${{ steps.tag.outputs.version }}"
