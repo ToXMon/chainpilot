@@ -1,0 +1,116 @@
+# ============================================================
+# Web3 AI Agent - Akash Network Deployment
+# ============================================================
+# Full-stack: Next.js 14 + PostgreSQL
+# Services communicate via Akash internal DNS
+#
+# BEFORE DEPLOYING:
+#   1. Build & push your Docker image (see Dockerfile + docs/DEPLOY.md)
+#   2. Replace YOUR_REGISTRY/your-username/web3-agent:v1.0.0 below
+#   3. Set your Venice API key and optional Web3 RPC URLs in env
+# ============================================================
+
+version: "2.0"
+
+services:
+  # ── PostgreSQL Database ──────────────────────────────────────
+  # Stores: chat history, agent sessions, tool call logs
+  # Reachable from other services at hostname: "postgres"
+  # ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16.2-alpine
+    env:
+      - POSTGRES_USER=web3agent
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=web3agent
+    expose:
+      - port: 5432
+        to:
+          - service: app
+    params:
+      storage:
+        data:
+          mount: /var/lib/postgresql/data
+
+  # ── Next.js Application ──────────────────────────────────────
+  # Full-stack: React frontend + API routes + Prisma ORM
+  # Connects to PostgreSQL via internal DNS: postgres:5432
+  # Uses Venice SDK for LLM, ethers.js for Web3 tools
+  # ─────────────────────────────────────────────────────────────
+  app:
+    image: YOUR_REGISTRY/your-username/web3-agent:v1.0.0
+    env:
+      # ── Database (internal Akash networking) ──
+      - DATABASE_URL=postgresql://web3agent:${DB_PASSWORD}@postgres:5432/web3agent
+      - DIRECT_URL=postgresql://web3agent:${DB_PASSWORD}@postgres:5432/web3agent
+      # ── Venice AI (get key at https://venice.ai) ──
+      - VENICE_API_KEY=${VENICE_API_KEY}
+      # ── Web3 / Blockchain RPCs ──
+      - ETH_RPC_URL=${ETH_RPC_URL:-https://eth.llamarpc.com}
+      - BSC_RPC_URL=${BSC_RPC_URL:-https://bsc-dataseed.binance.org}
+      - POLYGON_RPC_URL=${POLYGON_RPC_URL:-https://polygon-rpc.com}
+      - ARBITRUM_RPC_URL=${ARBITRUM_RPC_URL:-https://arb1.arbitrum.io/rpc}
+      - BASE_RPC_URL=${BASE_RPC_URL:-https://mainnet.base.org}
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      # ── App Config ──
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-generate-a-random-32-char-string}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - TREASURY_PRIVATE_KEY=${TREASURY_PRIVATE_KEY}
+      - PRIVY_APP_SECRET=${PRIVY_APP_SECRET}
+      - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID}
+      - NODE_ENV=production
+    expose:
+      - port: 3000
+        as: 80
+        to:
+          - global: true
+        http_options:
+          max_body_size: 10485760
+          read_timeout: 60000
+          send_timeout: 60000
+          next_cases:
+            - error
+            - timeout
+
+profiles:
+  compute:
+    postgres:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          - name: data
+            size: 5Gi
+            attributes:
+              class: beta2
+              persistent: true
+    app:
+      resources:
+        cpu:
+          units: 2
+        memory:
+          size: 2Gi
+        storage:
+          size: 4Gi
+
+  placement:
+    mainstream:
+      pricing:
+        postgres:
+          denom: uakt
+          amount: 1500
+        app:
+          denom: uakt
+          amount: 5000
+
+deployment:
+  postgres:
+    mainstream:
+      profile: postgres
+      count: 1
+  app:
+    mainstream:
+      profile: app
+      count: 1
