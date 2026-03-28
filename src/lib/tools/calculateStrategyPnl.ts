@@ -22,11 +22,10 @@ export async function calculateStrategyPnl({
   toolArgs: z.infer<typeof calculateStrategyPnlSchema>
 }): Promise<string> {
   try {
-    const params = calculateStrategyPnlSchema.parse(toolArgs)
     const {
       entry_funding_rate, current_funding_rate, capital_usd, periods_held,
-      entry_btc_price, current_btc_price, trade_structure, exchange,
-    } = params
+      trade_structure, exchange,
+    } = calculateStrategyPnlSchema.parse(toolArgs)
 
     const config = EXCHANGE_CONFIGS[exchange]
     const makerFee = config?.makerFee ?? 0.0002
