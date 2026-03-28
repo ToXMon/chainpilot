@@ -1,7 +1,12 @@
 node_modules/
 .next/
 .git/
+.a0proj/
 *.md
+!AGENTS.md
+!HARNESS.md
+!docs/*.md
+!src/**/AGENTS.md
 !prisma/
 .env*
 !.env.example
