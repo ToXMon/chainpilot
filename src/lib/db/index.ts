@@ -13,12 +13,12 @@ export function getDatabase(): DatabaseInterface {
 
   if (dbType === 'json') {
     dbInstance = new JsonDatabase();
-    return dbInstance;
+  } else {
+    // Lazy-load Prisma to avoid import issues in JSON-only mode
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { PrismaDatabase } = require('./prisma');
+    dbInstance = new PrismaDatabase();
   }
 
-  // Lazy-load Prisma to avoid import issues in JSON-only mode
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { PrismaDatabase } = require('./prisma');
-  dbInstance = new PrismaDatabase();
-  return dbInstance;
+  return dbInstance as DatabaseInterface;
 }
