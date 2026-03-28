@@ -40,7 +40,7 @@ services:
   # Uses Venice SDK for LLM, ethers.js for Web3 tools
   # ─────────────────────────────────────────────────────────────
   app:
-    image: ghcr.io/toxmon/chainpilot:0.1.0-sha-4f6605d
+    image: ghcr.io/toxmon/chainpilot:0.1.0-sha-be79a44
     env:
       # ── Database (internal Akash networking) ──
       - DATABASE_URL=postgresql://web3agent:${DB_PASSWORD}@postgres:5432/web3agent
@@ -95,10 +95,10 @@ profiles:
       pricing:
         postgres:
           denom: uact
-          amount: 1500
+          amount: 10000
         app:
           denom: uact
-          amount: 5000
+          amount: 30000
 
 deployment:
   postgres:
