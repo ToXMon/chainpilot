@@ -29,7 +29,7 @@ export interface Message {
   id: string
   conversationId: string
   role: string
-  content: string
+  content: string | null;
   createdAt: string
 }
 
