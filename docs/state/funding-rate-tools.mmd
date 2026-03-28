@@ -1,0 +1,62 @@
+stateDiagram-v2
+    [*] --> UserQuery
+
+    state "Funding Rate Tool Flow" as FRT {
+        UserQuery --> ParseIntent: "funding rate / yield / basis trade"
+        ParseIntent --> GetFundingRates: "current rates?"
+        ParseIntent --> CompareVenues: "best exchange / $X capital?"
+        ParseIntent --> CalcPnl: "position PnL / how's it doing?"
+
+        state GetFundingRates {
+            [*] --> FetchAPIs
+            FetchAPIs --> BinanceAPI
+            FetchAPIs --> BybitAPI
+            FetchAPIs --> OkxAPI
+            BinanceAPI --> NormalizeRates
+            BybitAPI --> NormalizeRates
+            OkxAPI --> NormalizeRates
+            NormalizeRates --> StoreHistory
+            StoreHistory --> CalcPercentiles
+            CalcPercentiles --> ReturnRates
+        }
+
+        state CompareVenues {
+            [*] --> FetchRates
+            FetchRates --> DetermineDirection
+            DetermineDirection --> CalcFeeAdjusted
+            CalcFeeAdjusted --> RankVenues
+            RankVenues --> BuildRecommendation
+            BuildRecommendation --> ReturnComparison
+        }
+
+        state CalcPnl {
+            [*] --> ParseParams
+            ParseParams --> CalcFundingPnl
+            CalcFundingPnl --> CalcFees
+            CalcFees --> CalcSharpe
+            CalcSharpe --> DetermineStatus
+            DetermineStatus --> ReturnPnl
+        }
+
+        GetFundingRates --> FormatResponse
+        CompareVenues --> FormatResponse
+        CalcPnl --> FormatResponse
+    }
+
+    FormatResponse --> AgentResponse
+    AgentResponse --> [*]
+
+    state "Funding Rate Sign Convention" as FRS {
+        PositiveRate: "rate > 0: longs pay shorts"
+        StandardBasis: "long spot + short perp"
+        NegativeRate: "rate < 0: shorts pay longs"
+        ReverseBasis: "long perp + short spot"
+        PositiveRate --> StandardBasis
+        NegativeRate --> ReverseBasis
+    }
+
+    state "Error Handling" as EH {
+        APIFail --> CheckCache
+        CheckCache --> ReturnStale: "cached data exists"
+        CheckCache --> ReturnError: "no cache"
+    }
