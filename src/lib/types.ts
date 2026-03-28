@@ -18,6 +18,21 @@ export interface ChatMessage {
   createdAt: string
 }
 
+export interface Conversation {
+  id: string
+  title: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Message {
+  id: string
+  conversationId: string
+  role: string
+  content: string
+  createdAt: string
+}
+
 // --- Funding Rate Strategy Types ---
 
 export interface FundingRateEntry {
