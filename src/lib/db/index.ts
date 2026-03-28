@@ -20,5 +20,6 @@ export function getDatabase(): DatabaseInterface {
     dbInstance = new PrismaDatabase();
   }
 
-  return dbInstance;
+  const db: DatabaseInterface = dbInstance;
+  return db;
 }
