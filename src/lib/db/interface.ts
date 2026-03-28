@@ -2,6 +2,8 @@
 // Two implementations: json.ts (local dev/testing) and prisma.ts (production)
 // Switch via DATABASE environment variable
 
+import type { Conversation, Message } from '../types';
+
 export interface DatabaseInterface {
   // Conversations
   createConversation(title: string): Promise<Conversation>;
@@ -14,5 +16,4 @@ export interface DatabaseInterface {
   getMessages(conversationId: string): Promise<Message[]>;
 }
 
-// Re-export types from centralized types module
-export type { Conversation, Message } from '../types';
+export type { Conversation, Message };
