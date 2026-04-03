@@ -3,6 +3,8 @@ node_modules/
 .git/
 .a0proj/
 *.md
+!README.md
+!CHANGELOG.md
 !AGENTS.md
 !HARNESS.md
 !docs/*.md
