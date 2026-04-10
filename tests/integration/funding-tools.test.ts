@@ -109,22 +109,16 @@ async function testCalculateStrategyPnl(): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  console.log('Running funding rate tools integration tests...')
-  console.log('')
 
   await testGetFundingRates()
   await testCompareFundingVenues()
   await testCalculateStrategyPnl()
 
-  console.log('Results:')
   for (const r of results) {
     const icon = r.passed ? '✅' : '❌'
-    console.log(`  ${icon} ${r.tool}${r.error ? ` — ${r.error}` : ''}`)
   }
 
   const allPassed = results.every(r => r.passed)
-  console.log('')
-  console.log(allPassed ? 'All tests passed!' : 'Some tests failed.')
 
   // Write summary
   writeResult('funding_test_results.json', results)
